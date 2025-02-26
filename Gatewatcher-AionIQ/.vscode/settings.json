@@ -1,0 +1,9 @@
+{
+  "xsoar.demisto-sdk.Path": "/home/clement/.local/bin/demisto-sdk",
+  "xsoar.linter.lint.enable": true,
+  "python.testing.cwd": "/home/clement/Bureau/content/Packs/Gatewatcher-AionIQ/Integrations/GCenter103",
+  "python.testing.pytestEnabled": true,
+  "python.testing.pytestArgs": [
+    "."
+  ]
+}
