@@ -336,20 +336,11 @@ def gcenter103_alerts_list_command(client: GwClient, args: dict[str, Any]) -> Co
             readable_output="# gcenter103-alerts-list - Empty alerts list", outputs_prefix="Gatewatcher.Alerts.List"
         )
 
-    res_keys: list[dict[Any, Any]] = []
-
-    for i in range(0, len(res["results"])):
-        res_keys.append(
-            {
-                "uuid": res.get("results", [{}])[i].get("uuid", ""),
-            }
-        )
-
     return CommandResults(
         readable_output=tableToMarkdown("gcenter103-alerts-list", res.get("results", [{}])),
         outputs_prefix="Gatewatcher.Alerts.List",
         outputs_key_field="uuid",
-        outputs=res_keys,
+        outputs=[{"uuid": res_item.get("uuid", "")} for res_item in res["results"]],
         raw_response=res,
     )
 
@@ -1214,96 +1205,61 @@ def handle_big_fetch_selected_engines(
     client: GwClient, query: dict[str, Any], engine_selection: list[str], max_fetch: int, fetch_type: str
 ):
     gw_alerts = []
-    search_after_id_a: int = -1
 
-    if fetch_type in ("Alerts", "Both"):
-        query["size"] = 10000
-        query["query"]["bool"]["must"][0]["match"]["event.module"] = str(engine_selection[0])
+    for engine in engine_selection:
+        if fetch_type in ("Alerts", "Both"):
+            query["size"] = 10000
+            query["query"]["bool"]["must"][0]["match"]["event.module"] = engine
 
-        res_a = query_es_alerts(client=client, query=query)
-        gw_alerts = res_a
-        search_after_id_a = gw_alerts[-1]["sort"][0]
+            found_alerts = query_es_alerts(client=client, query=query) or []
+            gw_alerts.extend(found_alerts)
+            search_after_id_a = cast(int, gw_alerts[-1]["sort"][0])
 
-        nb_req: int = max_fetch // 10000
-        nb_req = nb_req + 1
-
-        while nb_req > 0:
-            query["search_after"] = [search_after_id_a]
-            res_a = query_es_alerts(client=client, query=query)
-            gw_alerts += res_a
-            search_after_id_a = gw_alerts[-1]["sort"][0]
-
-            nb_req = nb_req - 1
-
-    for i in range(1, len(engine_selection)):
-        query["query"]["bool"]["must"][0]["match"]["event.module"] = str(engine_selection[i])
-        res_a = query_es_alerts(client=client, query=query)
-        gw_alerts += res_a
-        search_after_id_a = gw_alerts[-1]["sort"][0]
-
-        nb_req = max_fetch // 10000
-        nb_req = nb_req + 1
-
-        while nb_req > 0:
-            query["search_after"] = [search_after_id_a]
-            res_a = query_es_alerts(client=client, query=query)
-            gw_alerts += res_a
-            search_after_id_a = gw_alerts[-1]["sort"][0]
-
-            nb_req = nb_req - 1
-
-        query["search_after"] = []
-
+            for _ in range((max_fetch-1) // 10000):
+                if len(found_alerts) < 10000:
+                    break
+                query["search_after"] = [search_after_id_a]
+                found_alerts = query_es_alerts(client=client, query=query) or []
+                gw_alerts.extend(found_alerts)
+                search_after_id_a = gw_alerts[-1]["sort"][0]
     return gw_alerts
 
 
 def handle_big_fetch_empty_selected_engines(client: GwClient, query: dict[str, Any], max_fetch: int, fetch_type: str):
     query["size"] = 10000
-    search_after_id_a: int = -1
     gw_alerts = []
 
     if fetch_type in ("Alerts", "Both"):
-        res_a = query_es_alerts(client=client, query=query)
-        gw_alerts = res_a
+        found_alerts = query_es_alerts(client=client, query=query) or []
+        gw_alerts.extend(found_alerts)
         search_after_id_a = gw_alerts[-1]["sort"][0]
 
-    nb_req: int = max_fetch // 10000
-    nb_req = nb_req + 1
-
-    while nb_req > 0:
-        query["search_after"] = [search_after_id_a]
-        res_a = query_es_alerts(client=client, query=query)
-        gw_alerts += res_a
-        search_after_id_a = gw_alerts[-1]["sort"][0]
-
-        nb_req = nb_req - 1
-
-    query["search_after"] = []
-
+        for _ in range((max_fetch-1) // 10000):
+            if len(found_alerts) < 10000:
+                break
+            query["search_after"] = [search_after_id_a]
+            found_alerts = query_es_alerts(client=client, query=query) or []
+            gw_alerts.extend(found_alerts)
+            search_after_id_a = gw_alerts[-1]["sort"][0]
     return gw_alerts
 
 
 def handle_big_fetch_metadata(client: GwClient, query: dict[str, Any], max_fetch: int, fetch_type: str):
     query["size"] = 10000
 
-    search_after_id_m: int = -1
     gw_metadata = []
 
     if fetch_type in ("Metadata", "Both"):
-        res_m = query_es_metadata(client=client, query=query)
-        gw_metadata = res_m
-        search_after_id_m = gw_metadata[-1]["sort"][0]
-
-    nb_req: int = max_fetch // 10000
-    nb_req = nb_req + 1
-
-    while nb_req > 0:
-        query["search_after"] = [search_after_id_m]
-        res_m = query_es_metadata(client=client, query=query)
-        gw_metadata += res_m
-        search_after_id_m = gw_metadata[-1]["sort"][0]
-
-        nb_req = nb_req - 1
+        found_metadata = query_es_metadata(client=client, query=query) or []
+        gw_metadata.extend(found_metadata)
+        search_after_id = gw_metadata[-1]["sort"][0]
+        for _ in range((max_fetch-1) // 10000):
+            if len(found_metadata) < 10000:
+                break
+            query["search_after"] = [search_after_id]
+            found_metadata = query_es_metadata(client=client, query=query) or []
+            gw_metadata.extend(found_metadata)
+            search_after_id = gw_metadata[-1]["sort"][0]
 
     return gw_metadata
 
@@ -1313,9 +1269,9 @@ def handle_little_fetch_alerts(
 ) -> list[list[dict[Any, Any]]]:
     gw_alerts: list[list[dict[Any, Any]]] = [[{}]]
 
-    for i in range(0, len(engine_selection)):
+    for engine in engine_selection:
         if fetch_type in ("Alerts", "Both"):
-            query["query"]["bool"]["must"][0]["match"]["event.module"] = str(engine_selection[i])
+            query["query"]["bool"]["must"][0]["match"]["event.module"] = engine
             res_a: list[dict[Any, Any]] | None = query_es_alerts(client=client, query=query)
             if res_a is not None:
                 gw_alerts.append(res_a)
@@ -1334,7 +1290,7 @@ def handle_little_fetch_empty_selected_engines(client: GwClient, fetch_type: str
     return [{}]
 
 
-def handle_little_fetch_metadata(client: GwClient, fetch_type: str, query: dict[str, Any]) -> list[dict[Any, Any]] | None:
+def handle_little_fetch_metadata(client: GwClient, fetch_type: str, query: dict[str, Any]) -> list[dict[Any, Any]]:
     gw_metadata: list[dict[Any, Any]] | None = [{}]
 
     if fetch_type in ("Metadata", "Both"):
@@ -1343,7 +1299,7 @@ def handle_little_fetch_metadata(client: GwClient, fetch_type: str, query: dict[
             gw_metadata = res_m
             return gw_metadata
 
-    return [{}]
+    return []
 
 
 def index_alerts_incidents(
@@ -1351,7 +1307,7 @@ def index_alerts_incidents(
 ) -> list[dict[Any, Any]]:
     webui_link: str = "https://" + str(params.get("ip", "")) + "/ui/alerts?drawer=alert&drawer_uuid="
     if to_index is None:
-        return [{}]
+        return []
 
     for i in range(0, len(to_index)):
         if to_index[i].get("_source", {}) == {}:
@@ -1399,7 +1355,7 @@ def index_alerts_incidents(
 
 def index_metadata_incidents(to_index: list[dict[Any, Any]] | None, incidents: list[dict[Any, Any]]) -> list[dict[Any, Any]]:
     if to_index is None:
-        return [{}]
+        return []
 
     for i in range(0, len(to_index)):
         if to_index[i].get("_source", {}) == {}:
@@ -1468,16 +1424,18 @@ def fetch_selected_engines(
     query: dict[str, Any] = query_selected_engines_builder(
         max_fetch=max_fetch, engine_selection=engine_selection, from_to=from_to
     )
-    gw_alerts: list[list[dict[Any, Any]]] | None = [[{}]]
-    incidents_a: list[dict[Any, Any]] = [{}]
-    gw_metadata: list[dict[Any, Any]] | None = [{}]
-    incidents_m: list[dict[Any, Any]] = [{}]
+    gw_alerts: list[list[dict[Any, Any]]] = []
+    incidents_a: list[dict[Any, Any]] = []
+    gw_metadata: list[dict[Any, Any]] = []
+    incidents_m: list[dict[Any, Any]] = []
 
     if max_fetch > 10000:
         gw_alerts = handle_big_fetch_selected_engines(
             client=client, query=query, engine_selection=engine_selection, max_fetch=max_fetch, fetch_type=fetch_type
         )
-        incidents_a = index_alerts_incidents(to_index=gw_alerts, incidents=incidents, params=params)
+        incidents_a = []
+        for gw_alert in gw_alerts:
+            incidents_a.extend(index_alerts_incidents(to_index=gw_alert, incidents=incidents, params=params))
 
         query = query_empty_selected_engines_builder(from_to=from_to, max_fetch=max_fetch)
         gw_metadata = handle_big_fetch_metadata(client=client, query=query, max_fetch=max_fetch, fetch_type=fetch_type)
@@ -1495,7 +1453,7 @@ def fetch_selected_engines(
 
         query = query_empty_selected_engines_builder(from_to=from_to, max_fetch=max_fetch)
         gw_metadata = handle_little_fetch_metadata(client=client, query=query, fetch_type=fetch_type)
-        if gw_metadata != [{}]:
+        if gw_metadata:
             incidents_m = index_metadata_incidents(to_index=gw_metadata, incidents=incidents)
 
         return incidents_a + incidents_m
@@ -1504,10 +1462,10 @@ def fetch_selected_engines(
 def fetch_empty_selected_engines(client: GwClient, max_fetch: int, fetch_type: str, incidents, params: dict[str, Any]):
     from_to: list[str] = last_run_range(params=params)
     query: dict[str, Any] = query_empty_selected_engines_builder(from_to=from_to, max_fetch=max_fetch)
-    gw_alerts: list[dict[Any, Any]] | None = [{}]
-    gw_metadata: list[dict[Any, Any]] | None = [{}]
-    incidents_a: list[dict[Any, Any]] = [{}]
-    incidents_m: list[dict[Any, Any]] = [{}]
+    gw_alerts: list[dict[Any, Any]] | None = []
+    gw_metadata: list[dict[Any, Any]] | None = []
+    incidents_a: list[dict[Any, Any]] = []
+    incidents_m: list[dict[Any, Any]] = []
 
     if max_fetch > 10000:
         gw_alerts = handle_big_fetch_empty_selected_engines(
@@ -1528,7 +1486,7 @@ def fetch_empty_selected_engines(client: GwClient, max_fetch: int, fetch_type: s
 
         query = query_empty_selected_engines_builder(from_to=from_to, max_fetch=max_fetch)
         gw_metadata = handle_little_fetch_metadata(client=client, query=query, fetch_type=fetch_type)
-        if gw_metadata != [{}]:
+        if gw_metadata:
             incidents_m = index_metadata_incidents(to_index=gw_metadata, incidents=incidents)
 
         return incidents_a + incidents_m
@@ -1573,7 +1531,7 @@ def fetch_incidents():
 
     client: GwClient = gw_client_auth(params=params)
 
-    incidents: list[dict[Any, Any]] = [{}]
+    incidents: list[dict[Any, Any]] = []
 
     if len(engine_selection) > 0:
         incidents = fetch_selected_engines(
