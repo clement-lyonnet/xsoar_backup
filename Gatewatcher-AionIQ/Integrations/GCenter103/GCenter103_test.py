@@ -847,13 +847,11 @@ def test_fetch_selected_engines(mocker, max_fetch_val, fetch_type_val, returned_
     # 3) Patch index functions to simply return the incidents back
     def mock_index_alerts_incidents(to_index, incidents, params):
         # Just append them with a placeholder structure
-        for item in to_index:
-            incidents.append({"name": "Alert", "occurred": "2025-01-01T00:00:00Z"})
+        incidents.append({"name": "Alert", "occurred": "2025-01-01T00:00:00Z"})
         return incidents
 
     def mock_index_metadata_incidents(to_index, incidents):
-        for item in to_index:
-            incidents.append({"name": "Meta", "occurred": "2025-01-02T00:00:00Z"})
+        incidents.append({"name": "Meta", "occurred": "2025-01-02T00:00:00Z"})
         return incidents
 
     mocker.patch('GCenter103.index_alerts_incidents', side_effect=mock_index_alerts_incidents)
