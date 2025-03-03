@@ -118,7 +118,7 @@
                                 "fieldId": "sourcebrand",
                                 "height": 53,
                                 "id": "incident-sourceBrand-field",
-                                "index": 9,
+                                "index": 10,
                                 "listId": "caseinfoid-fce71720-98b0-11e9-97d7-ed26ef9e46c8",
                                 "sectionItemType": "field",
                                 "startCol": 0
@@ -129,7 +129,7 @@
                                 "fieldId": "sourceinstance",
                                 "height": 53,
                                 "id": "incident-sourceInstance-field",
-                                "index": 10,
+                                "index": 11,
                                 "listId": "caseinfoid-fce71720-98b0-11e9-97d7-ed26ef9e46c8",
                                 "sectionItemType": "field",
                                 "startCol": 0
