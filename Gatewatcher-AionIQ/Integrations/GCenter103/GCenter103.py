@@ -1430,9 +1430,8 @@ def fix_broken_list(params: dict[str, Any]) -> list[str]:
     return e_s
 
 
-def fetch_incidents():
+def fetch_incidents(client: GwClient) -> None:
     params: dict[str, Any] = demisto.params()
-    demisto.args()
 
     max_fetch: int = int(params.get("max_fetch", "200"))
     if max_fetch < 0:
@@ -1441,8 +1440,6 @@ def fetch_incidents():
     fetch_type: str = params.get("fetch_type", "Alerts")
 
     engine_selection: list[str] = fix_broken_list(params=params)
-
-    client: GwClient = gw_client_auth(params=params)
 
     incidents: list[dict[Any, Any]] = []
 
@@ -1489,7 +1486,7 @@ def main() -> None:
         if command == "test-module":
             return_results(test_module(client=client, user=user, password=password, token=token))
         elif command == "fetch-incidents":
-            return_results(fetch_incidents())
+            fetch_incidents(client=client)
         elif command == "gcenter103-alerts-list":
             return_results(gcenter103_alerts_list_command(client=client, args=args))
         elif command == "gcenter103-alerts-get":
