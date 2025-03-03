@@ -1435,6 +1435,8 @@ def fetch_incidents():
     demisto.args()
 
     max_fetch: int = int(params.get("max_fetch", "200"))
+    if max_fetch < 0:
+        max_fetch = 200
 
     fetch_type: str = params.get("fetch_type", "Alerts")
 
@@ -1463,7 +1465,7 @@ def fetch_incidents():
         last_incident = incidents_s[- 1]
         demisto.setLastRun({"start_time": last_incident.get("occurred", "")})
 
-    demisto.incidents(incidents={incident for incident in incidents if incident})
+    demisto.incidents(incidents=incidents)
 
 
 def main() -> None:
