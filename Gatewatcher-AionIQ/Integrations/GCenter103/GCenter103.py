@@ -440,9 +440,12 @@ def gcenter103_alerts_tags_add_command(client: GwClient, args: dict[str, Any]) -
     ids_present = {tag["id"] for tag in req.json().get("results", [])}
 
     res = req.json()
+    data: dict[Any, Any] = {"tags": []}
+    for tag in list(ids_present.union(ids_to_add)):
+        data["tags"].append({"id": tag})
 
     req = client._put(endpoint="/api/v1/alerts/" + uuid + "/tags",
-                      json_data={"tags": list(ids_present.union(ids_to_add))},
+                      json_data=data,
                       )
 
     res = req.json()
