@@ -512,15 +512,13 @@ def gcenter103_alerts_status_update_command(client: GwClient, args: dict[str, An
         "ids": 0,
     }
 
-    data = {"note": args.get("note_u") or "", "tag": args.get("tag_u", "").split(",")}
-
+    data = {"note": args.get("note_u") or "", "tag": [int(tag) for tag in args.get("tag_u", "").split(",") if tag]}
     req = client._get(endpoint="/api/v1/alerts/" + uuid)
 
     res = req.json()
     params["ids"] = res.get("id", "")
 
     req = client._put(endpoint="/api/v1/alerts/action/" + args.get("action", ""), json_data=data, params=params)
-
     return CommandResults(
         readable_output=f"# gcenter103-alerts-status-update {req.status_code}: OK",
         outputs_prefix="Gatewatcher.Alerts.Status.Update",
