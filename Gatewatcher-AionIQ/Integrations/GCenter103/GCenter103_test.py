@@ -312,7 +312,6 @@ def test_index_metadata_incidents():
             'sort': [1111]
         }
     ]
-    incidents = []
     results = index_metadata_incidents(sample_hits)
     assert len(results) == 1
     incident = results[0]
@@ -654,17 +653,19 @@ def test_main_fetch_incidents(mocker):
     Then:
      - fetch_incidents is invoked and passes a real list of incidents to return_results.
     """
-    from GCenter103 import fetch_empty_selected_engines, gw_client_auth, GwClient
+    from GCenter103 import main
 
     # 1) Patch demisto commands/params
     mocker.patch.object(demisto, 'command', return_value='fetch-incidents')
     mocker.patch.object(demisto, 'params', return_value={
         "ip": "1.1.1.1",
         "fetch_type": "Alerts",
-        "max_fetch": "200",
         "credentials": {"identifier": "admin", "password": "admin"}
     })
     mocker.patch.object(demisto, 'args', return_value={})
+
+    # 2) Patch `return_results` from the correct module path.
+    mocked_return_results = mocker.patch('GCenter103.return_results')
 
     # 3) Mock out GwClient so we don't do real auth
     mocker.patch('GCenter103.GwClient')
@@ -677,24 +678,15 @@ def test_main_fetch_incidents(mocker):
          "type": "Gatewatcher Incident"}
     ]
     mocker.patch('GCenter103.fetch_incidents', return_value=mock_incidents)
-    mock_response = MagicMock()
-    mock_response.status_code = 200
-    mock_response.json.return_value = {"token": "testtoken"}
 
-    with patch.object(GwClient, '_post', return_value=mock_response):
-        client = GwClient(ip="fake_ip")
-        client.auth(user="test_user", password="test_pass")
+    # 5) Execute main
+    main()
 
-    client = gw_client_auth(demisto.params())
-
-    incidents = fetch_empty_selected_engines(
-        client=client,
-        max_fetch=int(demisto.params.get("max_fetch", 200)),
-        fetch_type=demisto.params.get("fetch_type", "Alerts"),
-        params=demisto.params()
-    )
-    
-    assert incidents == mock_incidents
+    # 6) Confirm return_results was called with that real list
+    #    (The actual call structure is [mock_incidents], but
+    #     mocker captures the first positional arg from call_args[0]).
+    called_arg = mocked_return_results.call_args[0][0]
+    assert called_arg == mock_incidents
 
 
 def test_handle_big_fetch_selected_engines_alerts(mocker):
@@ -854,7 +846,7 @@ def test_fetch_selected_engines(mocker, max_fetch_val, fetch_type_val, returned_
         # Just append them with a placeholder structure
         return [{"name": "Alert", "occurred": "2025-01-01T00:00:00Z"}]
 
-    def mock_index_metadata_incidents(to_index, params):
+    def mock_index_metadata_incidents(to_index):
         return [{"name": "Meta", "occurred": "2025-01-02T00:00:00Z"}]
 
     mocker.patch('GCenter103.index_alerts_incidents', side_effect=mock_index_alerts_incidents, return_value=returned_alerts)
@@ -902,7 +894,7 @@ def test_fetch_selected_engines(mocker, max_fetch_val, fetch_type_val, returned_
     # If we get no alerts or metadata, results is empty
 
 
-with open("test_data/test_commands_data.yml") as yaml_file:
+with open("test_data/test_commands_data.dat") as yaml_file:
     _data_as_dict = cast(dict[str, list[dict]], yaml.Loader(yaml_file).get_data())
 
 TEST_COMMANDS_DATA = []

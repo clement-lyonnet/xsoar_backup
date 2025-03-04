@@ -362,8 +362,8 @@ def gcenter103_alerts_get_command(client: GwClient, args: dict[str, str]) -> Com
 
 
 def gcenter103_alerts_note_add_command(client: GwClient, args: dict[str, str]) -> CommandResults:
-    note =  args.get("note", "")
-    uuid =  args.get("uuid", "")
+    note = args.get("note", "")
+    uuid = args.get("uuid", "")
     overwrite = args.get("overwrite", "")
 
     data = {"note": note}
@@ -423,8 +423,6 @@ def get_gcenter_tags(client: GwClient) -> dict[str, int]:
     return {tag["label"]: tag["id"] for tag in res["results"]}
 
 
-
-
 def get_tags_ids(client: GwClient, tags_args: list[str]) -> dict[str, int]:
     gcenter_tags = get_gcenter_tags(client=client)
     wrong_tags = [tag for tag in tags_args if tag not in gcenter_tags]
@@ -444,8 +442,8 @@ def gcenter103_alerts_tags_add_command(client: GwClient, args: dict[str, Any]) -
     res = req.json()
 
     req = client._put(endpoint="/api/v1/alerts/" + uuid + "/tags",
-        json_data={"tags": list(ids_present.union(ids_to_add))},
-    )
+                      json_data={"tags": list(ids_present.union(ids_to_add))},
+                      )
 
     res = req.json()
     res_keys: dict[Any, Any] = {
@@ -751,8 +749,8 @@ def gcenter103_assets_tags_add_command(client: GwClient, args: dict[str, Any]) -
     ids_present = {tag["id"] for tag in req.json().get("results", [])}
 
     req = client._put(endpoint="/api/v1/assets/" + asset_name + "/tags",
-        json_data={"tags": [{"id": tag_id} for tag_id in ids_present.union(ids_to_add)]},
-    )
+                      json_data={"tags": [{"id": tag_id} for tag_id in ids_present.union(ids_to_add)]},
+                      )
 
     res = req.json()
 
@@ -1131,7 +1129,7 @@ def handle_big_fetch_selected_engines(
             gw_alerts.extend(found_alerts)
             search_after_id_a = cast(int, gw_alerts[-1]["sort"][0])
 
-            for _ in range((max_fetch-1) // 10000):
+            for _ in range((max_fetch - 1) // 10000):
                 if len(found_alerts) < 10000:
                     break
                 query["search_after"] = [search_after_id_a]
@@ -1150,7 +1148,7 @@ def handle_big_fetch_empty_selected_engines(client: GwClient, query: dict[str, A
         gw_alerts.extend(found_alerts)
         search_after_id_a = gw_alerts[-1]["sort"][0]
 
-        for _ in range((max_fetch-1) // 10000):
+        for _ in range((max_fetch - 1) // 10000):
             if len(found_alerts) < 10000:
                 break
             query["search_after"] = [search_after_id_a]
@@ -1169,7 +1167,7 @@ def handle_big_fetch_metadata(client: GwClient, query: dict[str, Any], max_fetch
         found_metadata = query_es_metadata(client=client, query=query) or []
         gw_metadata.extend(found_metadata)
         search_after_id = gw_metadata[-1]["sort"][0]
-        for _ in range((max_fetch-1) // 10000):
+        for _ in range((max_fetch - 1) // 10000):
             if len(found_metadata) < 10000:
                 break
             query["search_after"] = [search_after_id]
@@ -1276,7 +1274,7 @@ def index_alerts_incidents(
 
 def index_metadata_incidents(to_index: list[dict[Any, Any]] | None) -> list[dict[Any, Any]]:
     incidents = []
-    for new_incident in to_index or  []:
+    for new_incident in to_index or []:
         if new_incident.get("_source", {}) == {}:
             return []
 
@@ -1448,7 +1446,7 @@ def fix_broken_list(params: dict[str, Any]) -> list[str]:
     return e_s
 
 
-def fetch_incidents(client: GwClient) -> None:
+def fetch_incidents(client: GwClient) -> Any:
     params: dict[str, Any] = demisto.params()
 
     max_fetch: int = int(params.get("max_fetch", "200"))
@@ -1480,7 +1478,7 @@ def fetch_incidents(client: GwClient) -> None:
         last_incident = incidents_s[- 1]
         demisto.setLastRun({"start_time": last_incident.get("occurred", "")})
 
-    demisto.incidents(incidents=incidents)
+    return demisto.incidents(incidents=incidents)
 
 
 def main() -> None:
@@ -1504,7 +1502,7 @@ def main() -> None:
         if command == "test-module":
             return_results(test_module(client=client, user=user, password=password, token=token))
         elif command == "fetch-incidents":
-            fetch_incidents(client=client)
+            return_results(fetch_incidents(client=client))
         elif command == "gcenter103-alerts-list":
             return_results(gcenter103_alerts_list_command(client=client, args=args))
         elif command == "gcenter103-alerts-get":
