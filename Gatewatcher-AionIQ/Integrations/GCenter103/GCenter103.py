@@ -1242,7 +1242,14 @@ def index_alerts_incidents(
             "CustomFields": {
                 "GatewatcherRawEvent": json.dumps(new_incident.get("_source", {})),
                 "GatewatcherGCenterWebUI": webui_link,
-            },
+                "protocol": new_incident.get("_source", {}).get("network", {}).get("protocol", ""),
+                "sourceip": new_incident.get("_source", {}).get("source", {}).get("ip", ""),
+                "sourceport": new_incident.get("_source", {}).get("source", {}).get("port", ""),
+                "sourcemacaddress": new_incident.get("_source", {}).get("source", {}).get("mac", ""),
+                "destinationip": new_incident.get("_source", {}).get("destination", {}).get("ip", ""),
+                "destinationport": new_incident.get("_source", {}).get("destination", {}).get("port", ""),
+                "destinationmacaddress": new_incident.get("_source", {}).get("destination", {}).get("mac", "")
+            }
         }
 
         webui_link = webui_link.rstrip(new_incident.get("_source", {}).get("event", {}).get("id", ""))
@@ -1283,6 +1290,16 @@ def index_metadata_incidents(to_index: list[dict[Any, Any]] | None) -> list[dict
             ],
             "rawJSON": json.dumps(new_incident.get("_source", {})),
             "type": "Gatewatcher Incident",
+            "CustomFields": {
+                "GatewatcherRawEvent": json.dumps(new_incident.get("_source", {})),
+                "protocol": new_incident.get("_source", {}).get("network", {}).get("protocol", ""),
+                "sourceip": new_incident.get("_source", {}).get("source", {}).get("ip", ""),
+                "sourceport": new_incident.get("_source", {}).get("source", {}).get("port", ""),
+                "sourcemacaddress": new_incident.get("_source", {}).get("source", {}).get("mac", ""),
+                "destinationip": new_incident.get("_source", {}).get("destination", {}).get("ip", ""),
+                "destinationport": new_incident.get("_source", {}).get("destination", {}).get("port", ""),
+                "destinationmacaddress": new_incident.get("_source", {}).get("destination", {}).get("mac", "")
+            }
         }
 
         # XSOAR Severity
