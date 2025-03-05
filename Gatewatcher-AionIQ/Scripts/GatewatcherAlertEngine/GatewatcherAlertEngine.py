@@ -9,20 +9,74 @@ def gatewatcherAlertEngine() -> CommandResults:
     incident = demisto.incident()
     d = json.loads(str(incident['CustomFields']['GatewatcherRawEvent']))
 
+    if d['event']['module'] == "active_cti":
+
+        ret_fields = {
+            "dns.query": d['dns']['query'],
+            "flow.bytes_toclient": d['flow']['bytes_toclient'],
+            "flow.bytes_toserver": d['flow']['bytes_toserver'],
+            "flow.pkts_toclient": d['flow']['pkts_toclient'],
+            "flow.pkts_toserver": d['flow']['pkts_toserver'],
+            "flow.start": d['flow']['start'],
+            "sigflow.action": d['sigflow']['action'],
+            "sigflow.category": d['sigflow']['category'],
+            "sigflow.gid": d['sigflow']['gid'],
+            "sigflow.metadata": d['sigflow']['metadata'],
+            "sigflow.payload": d['sigflow']['payload'],
+            "sigflow.payload_printable": d['sigflow']['payload_printable'],
+            "sigflow.rev": d['sigflow']['rev'],
+            "sigflow.signature": d['sigflow']['signature'],
+            "sigflow.signature_id": d['sigflow']['signature_id'],
+            "sigflow.stream": d['sigflow']['stream']
+        }
+
     if d['event']['module'] == "malcore":
 
         ret_fields = {
-            "malcore.detail_threat_found": "",
-            "malcore.engines_last_update_date": "",
-            "malcore.magic_details": "",
-            "malcore.state": "",
-            "malcore.total_found": ""
+            "malcore.analyzed_clean": d['malcore']['analyzed_clean'],
+            "malcore.analyzed_error": d['malcore']['analyzed_error'],
+            "malcore.analyzed_infected": d['malcore']['analyzed_infected'],
+            "malcore.analyzed_other": d['malcore']['analyzed_other'],
+            "malcore.analyzed_suspicious": d['malcore']['analyzed_suspicious'],
+            "malcore.analyzers_up": d['malcore']['analyzers_up'],
+            "malcore.code": d['malcore']['code'],
+            "malcore.detail_scan_time": d['malcore']['detail_scan_time'],
+            "malcore.detail_threat_found": d['malcore']['detail_threat_found'],
+            "malcore.detail_wait_time": d['malcore']['detail_wait_time'],
+            "malcore.engine_id": d['malcore']['engine_id'],
+            "malcore.engines_last_update_date": d['malcore']['engines_last_update_date'],
+            "malcore.file_type": d['malcore']['file_type'],
+            "malcore.file_type_description": d['malcore']['file_type_description'],
+            "malcore.magic_details": d['malcore']['magic_details'],
+            "malcore.processing_time": d['malcore']['processing_time'],
+            "malcore.reporting_token": d['malcore']['reporting_token'],
+            "malcore.state": d['malcore']['state'],
+            "malcore.total_found": d['malcore']['total_found']
         }
-        ret_fields['malcore.detail_threat_found'] = d['malcore']['detail_threat_found']
-        ret_fields['malcore.engines_last_update_date'] = d['malcore']['engines_last_update_date']
-        ret_fields['malcore.magic_details'] = d['malcore']['magic_details']
-        ret_fields['malcore.state'] = d['malcore']['state']
-        ret_fields['malcore.total_found'] = d['malcore']['total_found']
+
+    if d['event']['module'] == "malcore_retroanalyzer":
+
+        ret_fields = {
+            "malcore_retroanalyzer.analyzed_clean": d['malcore_retroanalyzer']['analyzed_clean'],
+            "malcore_retroanalyzer.analyzed_error": d['malcore_retroanalyzer']['analyzed_error'],
+            "malcore_retroanalyzer.analyzed_infected": d['malcore_retroanalyzer']['analyzed_infected'],
+            "malcore_retroanalyzer.analyzed_other": d['malcore_retroanalyzer']['analyzed_other'],
+            "malcore_retroanalyzer.analyzed_suspicious": d['malcore_retroanalyzer']['analyzed_suspicious'],
+            "malcore_retroanalyzer.analyzers_up": d['malcore_retroanalyzer']['analyzers_up'],
+            "malcore_retroanalyzer.code": d['malcore_retroanalyzer']['code'],
+            "malcore_retroanalyzer.detail_scan_time": d['malcore_retroanalyzer']['detail_scan_time'],
+            "malcore_retroanalyzer.detail_threat_found": d['malcore_retroanalyzer']['detail_threat_found'],
+            "malcore_retroanalyzer.detail_wait_time": d['malcore_retroanalyzer']['detail_wait_time'],
+            "malcore_retroanalyzer.engine_id": d['malcore_retroanalyzer']['engine_id'],
+            "malcore_retroanalyzer.engines_last_update_date": d['malcore_retroanalyzer']['engines_last_update_date'],
+            "malcore_retroanalyzer.file_type": d['malcore_retroanalyzer']['file_type'],
+            "malcore_retroanalyzer.file_type_description": d['malcore_retroanalyzer']['file_type_description'],
+            "malcore_retroanalyzer.magic_details": d['malcore_retroanalyzer']['magic_details'],
+            "malcore_retroanalyzer.processing_time": d['malcore_retroanalyzer']['processing_time'],
+            "malcore_retroanalyzer.reporting_token": d['malcore_retroanalyzer']['reporting_token'],
+            "malcore_retroanalyzer.state": d['malcore_retroanalyzer']['state'],
+            "malcore_retroanalyzer.total_found": d['malcore_retroanalyzer']['total_found']
+        }
 
     if d['event']['module'] == "shellcode_detect":
 
@@ -45,15 +99,17 @@ def gatewatcherAlertEngine() -> CommandResults:
     if d['event']['module'] == "sigflow_alert":
 
         ret_fields = {
-            "sigflow.action": "",
-            "sigflow.category": "",
-            "sigflow.payload": "",
-            "sigflow.payload_printable": ""
+            "sigflow.action": d['sigflow']['action'],
+            "sigflow.category": d['sigflow']['category'],
+            "sigflow.gid": d['sigflow']['gid'],
+            "sigflow.metadata": d['sigflow']['metadata'],
+            "sigflow.payload": d['sigflow']['payload'],
+            "sigflow.payload_printable": d['sigflow']['payload_printable'],
+            "sigflow.rev": d['sigflow']['rev'],
+            "sigflow.signature": d['sigflow']['signature'],
+            "sigflow.signature_id": d['sigflow']['signature_id'],
+            "sigflow.stream": d['sigflow']['stream']
         }
-        ret_fields['sigflow.action'] = d['sigflow']['action']
-        ret_fields['sigflow.category'] = d['sigflow']['category']
-        ret_fields['sigflow.payload'] = d['sigflow']['payload']
-        ret_fields['sigflow.payload_printable'] = d['sigflow']['payload_printable']
 
     if d['event']['module'] == "dga_detect":
 
