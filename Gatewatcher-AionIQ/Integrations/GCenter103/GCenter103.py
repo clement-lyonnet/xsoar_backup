@@ -955,10 +955,15 @@ def gcenter103_users_tags_add_command(client: GwClient, args: dict[str, Any]) ->
 
     ids_to_add = set(get_tags_ids(client=client, tags_args=tags).values())
     req = client._get(endpoint="/api/v1/kusers/" + kuser_name + "/tags")
-    ids_present = {tag["id"] for tag in req.json().get("results", [])}
+    ids_present = {tag["id"] for tag in req.json().get("tags", [])}
+    res = req.json()
+    data: dict[Any, Any] = {"tags": []}
+    for tag in list(ids_present.union(ids_to_add)):
+        data["tags"].append({"id": tag})
 
-    req = client._put(endpoint="/api/v1/kusers/" + kuser_name + "/tags", json_data={"tags": list(ids_present.union(ids_to_add))})
-
+    req = client._put(endpoint="/api/v1/kusers/" + kuser_name + "/tags",
+                      json_data=data
+                      )
     res = req.json()
 
     return CommandResults(
@@ -973,11 +978,14 @@ def gcenter103_users_tags_remove_command(client: GwClient, args: dict[str, Any])
 
     ids_to_remove = set(get_tags_ids(client=client, tags_args=tags).values())
     req = client._get(endpoint="/api/v1/kusers/" + kuser_name + "/tags")
-    ids_present = {tag["id"] for tag in req.json().get("results", [])}
+    ids_present = {tag["id"] for tag in req.json().get("tags", [])}
+    data: dict[Any, Any] = {"tags": []}
+    for tag in list(ids_present.difference(ids_to_remove)):
+        data["tags"].append({"id": tag})
 
     req = client._put(
         endpoint="/api/v1/kusers/" + kuser_name + "/tags",
-        json_data={"tags": list(ids_present.difference(ids_to_remove))},
+        json_data=data,
     )
     res = req.json()
 
