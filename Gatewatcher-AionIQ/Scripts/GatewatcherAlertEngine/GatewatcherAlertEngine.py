@@ -2,12 +2,14 @@ import demistomock as demisto  # noqa: F401
 from CommonServerPython import *  # noqa: F401
 import traceback
 import json
+from typing import Any
 
 
 def gatewatcherAlertEngine() -> CommandResults:
 
     incident = demisto.incident()
     d = json.loads(str(incident['CustomFields']['GatewatcherRawEvent']))
+    ret_fields: dict[Any, Any] = {}
 
     if d['event']['module'] == "active_cti":
 
@@ -33,49 +35,49 @@ def gatewatcherAlertEngine() -> CommandResults:
     if d['event']['module'] == "malcore":
 
         ret_fields = {
-            "malcore.analyzed_clean": d['malcore'].get("analyzed_clean",""),
-            "malcore.analyzed_error": d['malcore'].get("analyzed_error",""),
-            "malcore.analyzed_infected": d['malcore'].get("analyzed_infected",""),
-            "malcore.analyzed_other": d['malcore'].get("analyzed_other",""),
-            "malcore.analyzed_suspicious": d['malcore'].get("analyzed_suspicious",""),
-            "malcore.analyzers_up": d['malcore'].get("analyzers_up",""),
-            "malcore.code": d['malcore'].get("code",""),
-            "malcore.detail_scan_time": d['malcore'].get("detail_scan_time",""),
-            "malcore.detail_threat_found": d['malcore'].get("detail_threat_found",""),
-            "malcore.detail_wait_time": d['malcore'].get("detail_wait_time",""),
-            "malcore.engine_id": d['malcore'].get("engine_id",""),
-            "malcore.engines_last_update_date": d['malcore'].get("engines_last_update_date",""),
-            "malcore.file_type": d['malcore'].get("file_type",""),
-            "malcore.file_type_description": d['malcore'].get("file_type_description",""),
-            "malcore.magic_details": d['malcore'].get("magic_details",""),
-            "malcore.processing_time": d['malcore'].get("processing_time",""),
-            "malcore.reporting_token": d['malcore'].get("reporting_token",""),
-            "malcore.state": d['malcore'].get("state",""),
-            "malcore.total_found": d['malcore'].get("total_found","")
+            "malcore.analyzed_clean": d['malcore'].get("analyzed_clean", ""),
+            "malcore.analyzed_error": d['malcore'].get("analyzed_error", ""),
+            "malcore.analyzed_infected": d['malcore'].get("analyzed_infected", ""),
+            "malcore.analyzed_other": d['malcore'].get("analyzed_other", ""),
+            "malcore.analyzed_suspicious": d['malcore'].get("analyzed_suspicious", ""),
+            "malcore.analyzers_up": d['malcore'].get("analyzers_up", ""),
+            "malcore.code": d['malcore'].get("code", ""),
+            "malcore.detail_scan_time": d['malcore'].get("detail_scan_time", ""),
+            "malcore.detail_threat_found": d['malcore'].get("detail_threat_found", ""),
+            "malcore.detail_wait_time": d['malcore'].get("detail_wait_time", ""),
+            "malcore.engine_id": d['malcore'].get("engine_id", ""),
+            "malcore.engines_last_update_date": d['malcore'].get("engines_last_update_date", ""),
+            "malcore.file_type": d['malcore'].get("file_type", ""),
+            "malcore.file_type_description": d['malcore'].get("file_type_description", ""),
+            "malcore.magic_details": d['malcore'].get("magic_details", ""),
+            "malcore.processing_time": d['malcore'].get("processing_time", ""),
+            "malcore.reporting_token": d['malcore'].get("reporting_token", ""),
+            "malcore.state": d['malcore'].get("state", ""),
+            "malcore.total_found": d['malcore'].get("total_found", "")
         }
 
     if d['event']['module'] == "malcore_retroanalyzer":
 
         ret_fields = {
-            "malcore_retroanalyzer.analyzed_clean": d['malcore_retroanalyzer'].get("analyzed_clean",""),
-            "malcore_retroanalyzer.analyzed_error": d['malcore_retroanalyzer'].get("analyzed_error",""),
-            "malcore_retroanalyzer.analyzed_infected": d['malcore_retroanalyzer'].get("analyzed_infected",""),
-            "malcore_retroanalyzer.analyzed_other": d['malcore_retroanalyzer'].get("analyzed_other",""),
-            "malcore_retroanalyzer.analyzed_suspicious": d['malcore_retroanalyzer'].get("analyzed_suspicious",""),
-            "malcore_retroanalyzer.analyzers_up": d['malcore_retroanalyzer'].get("analyzers_up",""),
-            "malcore_retroanalyzer.code": d['malcore_retroanalyzer'].get("code",""),
-            "malcore_retroanalyzer.detail_scan_time": d['malcore_retroanalyzer'].get("detail_scan_time",""),
-            "malcore_retroanalyzer.detail_threat_found": d['malcore_retroanalyzer'].get("detail_threat_found",""),
-            "malcore_retroanalyzer.detail_wait_time": d['malcore_retroanalyzer'].get("detail_wait_time",""),
-            "malcore_retroanalyzer.engine_id": d['malcore_retroanalyzer'].get("engine_id",""),
-            "malcore_retroanalyzer.engines_last_update_date": d['malcore_retroanalyzer'].get("engines_last_update_date",""),
-            "malcore_retroanalyzer.file_type": d['malcore_retroanalyzer'].get("file_type",""),
-            "malcore_retroanalyzer.file_type_description": d['malcore_retroanalyzer'].get("file_type_description",""),
-            "malcore_retroanalyzer.magic_details": d['malcore_retroanalyzer'].get("magic_details",""),
-            "malcore_retroanalyzer.processing_time": d['malcore_retroanalyzer'].get("processing_time",""),
-            "malcore_retroanalyzer.reporting_token": d['malcore_retroanalyzer'].get("reporting_token",""),
-            "malcore_retroanalyzer.state": d['malcore_retroanalyzer'].get("state",""),
-            "malcore_retroanalyzer.total_found": d['malcore_retroanalyzer'].get("total_found","")
+            "malcore_retroanalyzer.analyzed_clean": d['malcore_retroanalyzer'].get("analyzed_clean", ""),
+            "malcore_retroanalyzer.analyzed_error": d['malcore_retroanalyzer'].get("analyzed_error", ""),
+            "malcore_retroanalyzer.analyzed_infected": d['malcore_retroanalyzer'].get("analyzed_infected", ""),
+            "malcore_retroanalyzer.analyzed_other": d['malcore_retroanalyzer'].get("analyzed_other", ""),
+            "malcore_retroanalyzer.analyzed_suspicious": d['malcore_retroanalyzer'].get("analyzed_suspicious", ""),
+            "malcore_retroanalyzer.analyzers_up": d['malcore_retroanalyzer'].get("analyzers_up", ""),
+            "malcore_retroanalyzer.code": d['malcore_retroanalyzer'].get("code", ""),
+            "malcore_retroanalyzer.detail_scan_time": d['malcore_retroanalyzer'].get("detail_scan_time", ""),
+            "malcore_retroanalyzer.detail_threat_found": d['malcore_retroanalyzer'].get("detail_threat_found", ""),
+            "malcore_retroanalyzer.detail_wait_time": d['malcore_retroanalyzer'].get("detail_wait_time", ""),
+            "malcore_retroanalyzer.engine_id": d['malcore_retroanalyzer'].get("engine_id", ""),
+            "malcore_retroanalyzer.engines_last_update_date": d['malcore_retroanalyzer'].get("engines_last_update_date", ""),
+            "malcore_retroanalyzer.file_type": d['malcore_retroanalyzer'].get("file_type", ""),
+            "malcore_retroanalyzer.file_type_description": d['malcore_retroanalyzer'].get("file_type_description", ""),
+            "malcore_retroanalyzer.magic_details": d['malcore_retroanalyzer'].get("magic_details", ""),
+            "malcore_retroanalyzer.processing_time": d['malcore_retroanalyzer'].get("processing_time", ""),
+            "malcore_retroanalyzer.reporting_token": d['malcore_retroanalyzer'].get("reporting_token", ""),
+            "malcore_retroanalyzer.state": d['malcore_retroanalyzer'].get("state", ""),
+            "malcore_retroanalyzer.total_found": d['malcore_retroanalyzer'].get("total_found", "")
         }
 
     if d['event']['module'] == "shellcode_detect":
