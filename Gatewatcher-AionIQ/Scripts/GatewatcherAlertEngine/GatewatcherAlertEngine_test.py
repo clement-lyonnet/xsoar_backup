@@ -21,7 +21,7 @@ from GatewatcherAlertEngine import gatewatcherAlertEngine
                     "bytes_toserver": 0,
                     "pkts_toclient": 0,
                     "pkts_toserver": 0,
-                    "start": "2025-03-06" 
+                    "start": "2025-03-06"
                 },
                 "sigflow": {
                     "action": "allowed",
@@ -33,7 +33,7 @@ from GatewatcherAlertEngine import gatewatcherAlertEngine
                     "rev": 0,
                     "signature": "sign",
                     "signature_id": 0,
-                    "stream": 0  
+                    "stream": 0
                 }
             },
             [
@@ -76,7 +76,7 @@ from GatewatcherAlertEngine import gatewatcherAlertEngine
                     "file_type_description": "descr",
                     "magic_details": "PE32 executable",
                     "processing_time": 0,
-                    "reporting_token": "token", 
+                    "reporting_token": "token",
                     "state": "Infected",
                     "total_found": "2/16"
                 },
@@ -124,7 +124,7 @@ from GatewatcherAlertEngine import gatewatcherAlertEngine
                     "file_type_description": "descr",
                     "magic_details": "PE32 executable",
                     "processing_time": 0,
-                    "reporting_token": "token", 
+                    "reporting_token": "token",
                     "state": "Infected",
                     "total_found": "2/16"
                 },
@@ -205,7 +205,7 @@ from GatewatcherAlertEngine import gatewatcherAlertEngine
                     "rev": 0,
                     "signature": "sign",
                     "signature_id": 0,
-                    "stream": 0  
+                    "stream": 0
                 },
             },
             [
