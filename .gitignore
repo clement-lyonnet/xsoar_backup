@@ -1,4 +1,5 @@
 poetry.lock
 pyproject.toml
-Integrations/GCenter103/__pycache__/
+Gatewatcher-AionIQ/Integrations/GCenter103/__pycache__/
 Gatewatcher-AionIQ/Scripts/GatewatcherAlertEngine/__pycache__/
+Gatewatcher-AionIQ/.vscode
